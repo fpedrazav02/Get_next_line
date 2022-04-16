@@ -11,94 +11,98 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-char	*ft_freej(char * stash, char *rbuff)
-{
-	char	*stash_join;
-	stash_join = ft_strjoin(stash, rbuff);
-	free(rbuff);
-	return (stash_join);
-}
-char	*ft_read(int fd, char *stash)
-{
-	char	*rbuff;
-	int		nbytes;
 
-	if (!stash)
-		stash = ft_calloc(1,1);
-	rbuff = malloc(BUFFER_SIZE + 1 * sizeof(char));
-	nbytes = 1;
-	while (nbytes > 0)
-	{
-		nbytes = read(fd, rbuff, BUFFER_SIZE);
-		if (nbytes == -1)
-		{
-			free(rbuff);
-			return (NULL);
-		}
-		rbuff[BUFFER_SIZE] = 0;
-		stash = ft_freej(stash, rbuff);
-		if (ft_strchr(stash, '\n'))
-			break;
-	}
-	free(rbuff);
-	return (stash);
+char	*ft_freej(char *stash, char *rbuff)
+{
+	char	*stash_joined;
+
+	stash_joined = ft_strjoin(stash, rbuff);
+	free(stash);
+	return (stash_joined);
 }
 
-char	*ft_gline(char *stash)
-{
-	char	*line;
-	char	eol;
-	char	*start;
-
-	start = stash;
-	while (*stash && *stash != '\n')
-	{
-		eol++;
-		stash++;
-	}
-	line = malloc(sizeof(char) * eol);
-	while (eol--)
-		*line++ = *start++;
-	return (line);
-}
-
-char	*ft_clean_stash(char *buffer)
+char	*ft_next(char *stash)
 {
 	int		i;
 	int		j;
 	char	*line;
 
 	i = 0;
-	while (buffer[i] && buffer[i] != '\n')
+	while (stash[i] && stash[i] != '\n')
 		i++;
-	if (!buffer[i])
+	if (!stash[i])
 	{
-		free(buffer);
+		free(stash);
 		return (NULL);
 	}
-	line = ft_calloc((ft_strlen(buffer) - i + 1), sizeof(char));
+	line = ft_calloc((ft_strlen(stash) - i + 1), sizeof(char));
 	i++;
 	j = 0;
-	while (buffer[i])
-		line[j++] = buffer[i++];
-	free(buffer);
+	while (stash[i])
+		line[j++] = stash[i++];
+	free(stash);
 	return (line);
+}
+
+char	*ft_line(char *stash)
+{
+	char	*line;
+	int		i;
+
+	i = 0;
+	if (!stash[i])
+		return (NULL);
+	while (stash[i] && stash[i] != '\n')
+		i++;
+	line = ft_calloc(i + 2, sizeof(char));
+	i = 0;
+	while (stash[i] && stash[i] != '\n')
+	{
+		line[i] = stash[i];
+		i++;
+	}
+	if (stash[i] && stash[i] == '\n')
+		line[i] = '\n';
+	return (line);
+}
+
+char	*ft_read_file(int fd, char *stash)
+{
+	char	*rbuff;
+	int		byte_read;
+
+	if (!stash)
+		stash = ft_calloc(1, 1);
+	rbuff = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	byte_read = 1;
+	while (byte_read > 0)
+	{
+		byte_read = read(fd, rbuff, BUFFER_SIZE);
+		if (byte_read == -1)
+		{
+			free(rbuff);
+			return (NULL);
+		}
+		rbuff[byte_read] = 0;
+		stash = ft_freej(stash, rbuff);
+		if (ft_strchr(rbuff, '\n'))
+			break ;
+	}
+	free(rbuff);
+	return (stash);
 }
 
 char	*get_next_line(int fd)
 {
-	char			*line;
-	static char		*stash;
+	static char	*stash;
+	char		*line;
 
-	//ERROR_HANDLING
-	if (BUFFER_SIZE < 0 || fd < 0 || read (fd, 0, 0) < 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 		return (NULL);
-	stash = ft_read(fd, stash);
+	stash = ft_read_file(fd, stash);
 	if (!stash)
 		return (NULL);
-	line = ft_gline(stash);
-	stash = ft_clean_stash(stash);
+	line = ft_line(stash);
+	stash = ft_next(stash);
 	return (line);
 }
-
-

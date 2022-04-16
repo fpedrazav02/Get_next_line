@@ -17,6 +17,11 @@
 # include <stdlib.h>
 # include <stdarg.h>
 # include <unistd.h>
+# include <fcntl.h>
+
+// #ifndef BUFFER_SIZE
+// # define BUFFER_SIZE 5
+// #endif /*...BUFFER_SIZE...*/
 
 char	*get_next_line(int fd);
 

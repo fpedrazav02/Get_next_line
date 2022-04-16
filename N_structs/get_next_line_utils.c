@@ -20,7 +20,7 @@ void	*ft_calloc(size_t nitems, size_t size)
 	if (!res)
 		return (NULL);
 	ft_bzero(res, nitems * size);
-	return	(res);
+	return (res);
 }
 
 void	ft_bzero(void *s, size_t n)
@@ -78,9 +78,10 @@ char	*ft_strchr(char const *original_str, int char_to_search)
 		return (NULL);
 }
 
-int		ft_strlen(char *str)
+int	ft_strlen(char *str)
 {
 	char	*head;
+
 	head = str;
 	while (*str)
 		str++;
